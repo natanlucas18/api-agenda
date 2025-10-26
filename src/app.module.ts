@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ContactsModule } from './contacts/contacts.module';
-import { UserModule } from './users/user.module';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -10,13 +10,13 @@ import { UserModule } from './users/user.module';
       host: 'localhost',
       port: 5432,
       username: 'postgres',
-      database: 'agenda',
+      database: 'postgres',
       password: '241839',
       autoLoadEntities: true,
       synchronize: true, // nao usar em produção
     }),
-    UserModule,
-    ContactsModule,
+    AuthModule,
+    UsersModule,
   ],
   controllers: [],
   providers: [],
