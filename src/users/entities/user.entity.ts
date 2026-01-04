@@ -1,21 +1,24 @@
 import { IsEmail } from 'class-validator';
-import { Roles } from 'src/auth/enum/roles';
-import { Column, CreateDateColumn, Entity, Generated } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
 export class User {
-  @Generated('increment')
-  @Column({ primary: true })
+  @PrimaryGeneratedColumn('increment')
   id: number;
 
-  @Column({ type: 'varchar', length: 20 })
+  @Column({ type: 'varchar', length: 20, nullable: true })
   name: string;
 
-  @Column({ unique: true })
+  @Column({ unique: true, nullable: true })
   @IsEmail()
   email: string;
 
-  @Column({ length: 255 })
+  @Column({ length: 255, nullable: true })
   passwordHash: string;
 
   @CreateDateColumn()
@@ -24,6 +27,6 @@ export class User {
   @Column({ default: true })
   active: boolean;
 
-  @Column({ type: 'simple-array', default: ['user'] })
-  roles: Roles[];
+  @Column({ type: 'jsonb', default: () => '\'["user"]\'' })
+  roles: string[];
 }
