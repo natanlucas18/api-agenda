@@ -12,19 +12,19 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthTokenGuard } from 'src/auth/guards/auth-token.guard';
-import { AvaliableServicesService } from './avaliable-services.service';
-import { CreateAvaliableServiceDto } from './dto/create-avaliable-service.dto';
-import { UpdateAvaliableServiceDto } from './dto/update-avaliable-service.dto';
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PaginationQueryDto } from 'src/common/dtos/pagination-query.dto';
+import { AvailableServicesService } from './available-services.service';
+import { CreateAvailableServiceDto } from './dto/create-available-service.dto';
+import { UpdateAvailableServiceDto } from './dto/update-available-service.dto';
 
 @UseGuards(AuthTokenGuard)
 @ApiBearerAuth()
-@ApiTags('avaliable-services')
-@Controller('avaliable-services')
-export class AvaliableServicesController {
+@ApiTags('available-services')
+@Controller('available-services')
+export class AvailableServicesController {
   constructor(
-    private readonly avaliableServicesService: AvaliableServicesService,
+    private readonly availableServicesService: AvailableServicesService,
   ) {}
 
   @HttpCode(HttpStatus.CREATED)
@@ -32,8 +32,8 @@ export class AvaliableServicesController {
   @ApiOperation({summary:'Cria um novo serviço'})
   @ApiResponse({status: 201, description: 'Serviço criado com sucesso'})
   @ApiResponse({status: 409, description: 'Serviço que está tentando criar já existe'})
-  create(@Body() createAvaliableServiceDto: CreateAvaliableServiceDto) {
-    return this.avaliableServicesService.create(createAvaliableServiceDto);
+  create(@Body() createAvailableServiceDto: CreateAvailableServiceDto) {
+    return this.availableServicesService.create(createAvailableServiceDto);
   }
 
   @HttpCode(HttpStatus.OK)
@@ -41,7 +41,7 @@ export class AvaliableServicesController {
   @ApiOperation({summary: 'Retorna todos os serviços'})
   @ApiResponse({status: 200, description: 'Serviços retornados com sucesso'})
   findAll(@Query() query: PaginationQueryDto) {
-    return this.avaliableServicesService.findAll(query);
+    return this.availableServicesService.findAll(query);
   }
 
   @HttpCode(HttpStatus.OK)
@@ -51,7 +51,7 @@ export class AvaliableServicesController {
   @ApiResponse({status: 200, description: 'Serviço retornado com sucesso'})
   @ApiResponse({status: 404, description: 'Serviço não encontrado'})
   findOne(@Param('id') id: string) {
-    return this.avaliableServicesService.findOne(id);
+    return this.availableServicesService.findOne(id);
   }
 
   @HttpCode(HttpStatus.OK)
@@ -63,9 +63,9 @@ export class AvaliableServicesController {
   @ApiResponse({status: 409, description: 'Já existe um serviço com o nome no qual está tentando atualizar'})
   update(
     @Param('id') id: string,
-    @Body() updateAvaliableServiceDto: UpdateAvaliableServiceDto,
+    @Body() updateAvailableServiceDto: UpdateAvailableServiceDto,
   ) {
-    return this.avaliableServicesService.update(id, updateAvaliableServiceDto);
+    return this.availableServicesService.update(id, updateAvailableServiceDto);
   }
 
   @HttpCode(HttpStatus.OK)
@@ -75,6 +75,6 @@ export class AvaliableServicesController {
   @ApiResponse({status: 200, description: 'Serviço removido com sucesso'})
   @ApiResponse({status: 404, description: 'Serviço não encontrado'})
   remove(@Param('id') id: string) {
-    return this.avaliableServicesService.remove(id);
+    return this.availableServicesService.remove(id);
   }
 }

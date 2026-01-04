@@ -7,7 +7,7 @@ import {
   MinLength,
 } from 'class-validator';
 
-export class CreateAvaliableServiceDto {
+export class CreateAvailableServiceDto {
   @ApiProperty({
     example: 'Corte social',
     description: 'Nome do serviço',

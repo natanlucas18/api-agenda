@@ -1,49 +1,48 @@
 import {
-  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CreateAvaliableServiceDto } from './dto/create-avaliable-service.dto';
-import { UpdateAvaliableServiceDto } from './dto/update-avaliable-service.dto';
-import { AvaliableService } from './entities/avaliable-service.entity';
 import { PaginationQueryDto } from 'src/common/dtos/pagination-query.dto';
 import { ResponseDto } from 'src/common/dtos/response.dto';
 import { PaginatedResponseDto } from 'src/common/dtos/paginated-response.dto';
+import { AvailableService } from './entities/available-service.entity';
+import { CreateAvailableServiceDto } from './dto/create-available-service.dto';
+import { UpdateAvailableServiceDto } from './dto/update-available-service.dto';
 
 @Injectable()
-export class AvaliableServicesService {
+export class AvailableServicesService {
   constructor(
-    @InjectRepository(AvaliableService)
-    private readonly avaliableServiceRepo: Repository<AvaliableService>,
+    @InjectRepository(AvailableService)
+    private readonly availableServiceRepo: Repository<AvailableService>,
   ) {}
-  async create(createAvaliableServiceDto: CreateAvaliableServiceDto): Promise<ResponseDto<AvaliableService>> {
-    const exists = await this.avaliableServiceRepo.findOneBy({
-      name: createAvaliableServiceDto.name,
+  async create(createAvailableServiceDto: CreateAvailableServiceDto): Promise<ResponseDto<AvailableService>> {
+    const exists = await this.availableServiceRepo.findOneBy({
+      name: createAvailableServiceDto.name,
     });
     if (exists) {
       throw new ConflictException('Esse serviço já existe!');
     }
-    const service = this.avaliableServiceRepo.create({
-      name: createAvaliableServiceDto.name,
-      price: createAvaliableServiceDto.price,
-      duration: createAvaliableServiceDto.duration,
+    const service = this.availableServiceRepo.create({
+      name: createAvailableServiceDto.name,
+      price: createAvailableServiceDto.price,
+      duration: createAvailableServiceDto.duration,
     });
-      await this.avaliableServiceRepo.save(service);
+      await this.availableServiceRepo.save(service);
       return {
         success: true,
         data: service
       }
   }
 
-  async findAll(query: PaginationQueryDto ):Promise<PaginatedResponseDto<AvaliableService>> {
+  async findAll(query: PaginationQueryDto ):Promise<PaginatedResponseDto<AvailableService>> {
     const page = Number(query.page) || 1;
     const limit = Number(query.limit) || 10;
     const skip = (page - 1) * limit;
     
-    const qb = this.avaliableServiceRepo.createQueryBuilder('service');
+    const qb = this.availableServiceRepo.createQueryBuilder('service');
 
     if (query.search) {
       qb.andWhere('(service.name ILIKE :search)', {
@@ -71,8 +70,8 @@ export class AvaliableServicesService {
     }
   }
 
-  async findOne(id: string):Promise<ResponseDto<AvaliableService>> {
-    const service = await this.avaliableServiceRepo.findOneBy({
+  async findOne(id: string):Promise<ResponseDto<AvailableService>> {
+    const service = await this.availableServiceRepo.findOneBy({
       id,
     });
     if (!service) {
@@ -86,17 +85,17 @@ export class AvaliableServicesService {
 
   async update(
     id: string,
-    updateAvaliableServiceDto: UpdateAvaliableServiceDto,
-  ):Promise<ResponseDto<AvaliableService>> {
-    const service = await this.avaliableServiceRepo.preload({
+    updateAvailableServiceDto: UpdateAvailableServiceDto,
+  ):Promise<ResponseDto<AvailableService>> {
+    const service = await this.availableServiceRepo.preload({
       id,
-      ...updateAvaliableServiceDto,
+      ...updateAvailableServiceDto,
     });
     if (!service) {
       throw new NotFoundException('Serviço não encontrado');
     }
     try {
-      await this.avaliableServiceRepo.save(service);
+      await this.availableServiceRepo.save(service);
       return {
         success: true,
         data: service
@@ -109,14 +108,14 @@ export class AvaliableServicesService {
     }
   }
 
-  async remove(id: string):Promise<ResponseDto<AvaliableService>> {
-    const service = await this.avaliableServiceRepo.findOneBy({
+  async remove(id: string):Promise<ResponseDto<AvailableService>> {
+    const service = await this.availableServiceRepo.findOneBy({
       id,
     });
     if (!service) {
       throw new NotFoundException('Serviço não encontrado');
     }
-      await this.avaliableServiceRepo.remove(service);
+      await this.availableServiceRepo.remove(service);
       return {
         success: true,
         data: service

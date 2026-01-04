@@ -1,4 +1,4 @@
-import { AvaliableService } from 'src/avaliable-services/entities/avaliable-service.entity';
+import { AvailableService } from 'src/available-services/entities/available-service.entity';
 import { Provider } from 'src/providers/entities/provider.entity';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
@@ -10,8 +10,8 @@ export class Appointment {
   @ManyToOne(() => Provider, { eager: true })
   provider: Provider;
 
-  @ManyToOne(() => AvaliableService, { eager: true, onDelete: 'CASCADE' })
-  service: AvaliableService;
+  @ManyToOne(() => AvailableService, { eager: true, onDelete: 'CASCADE' })
+  service: AvailableService;
 
   @Column({ type: 'timestamp' , unique: true})
   date: Date;
@@ -25,5 +25,5 @@ export class Appointment {
 
 export enum AppointmentStatus {
   scheduled,
-  completed
+  finished
 }

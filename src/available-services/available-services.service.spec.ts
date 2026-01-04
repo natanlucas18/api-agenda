@@ -1,19 +1,19 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AvaliableServicesService } from './avaliable-services.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { AvaliableService } from './entities/avaliable-service.entity';
 import { Repository } from 'typeorm';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { CreateAvaliableServiceDto } from './dto/create-avaliable-service.dto';
+import { AvailableServicesService } from './available-services.service';
+import { AvailableService } from './entities/available-service.entity';
+import { CreateAvailableServiceDto } from './dto/create-available-service.dto';
 
-describe('AvaliableServicesService', () => {
-  let service: AvaliableServicesService;
-  let serviceRepository: Repository<AvaliableService>
+describe('AvailableServicesService', () => {
+  let service: AvailableServicesService;
+  let serviceRepository: Repository<AvailableService>
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [AvaliableServicesService, {
-        provide: getRepositoryToken(AvaliableService),
+      providers: [AvailableServicesService, {
+        provide: getRepositoryToken(AvailableService),
         useValue: {
           create: jest.fn(),
           findAll: jest.fn(),
@@ -25,8 +25,8 @@ describe('AvaliableServicesService', () => {
       }],
     }).compile();
 
-    service = module.get<AvaliableServicesService>(AvaliableServicesService)
-    serviceRepository = module.get<Repository<AvaliableService>>(getRepositoryToken(AvaliableService))
+    service = module.get<AvailableServicesService>(AvailableServicesService)
+    serviceRepository = module.get<Repository<AvailableService>>(getRepositoryToken(AvailableService))
   });
 
   it('should be defined', () => {
@@ -36,7 +36,7 @@ describe('AvaliableServicesService', () => {
   describe('create', () => {
     it('should create a new service', async() => {
       // Arrange
-      const createServiceDto: CreateAvaliableServiceDto = {
+      const createServiceDto: CreateAvailableServiceDto = {
         name: 'corte degrade moicano',
         price: 35,
         duration: 30
