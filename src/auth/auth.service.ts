@@ -8,6 +8,16 @@ import jwtConfig from './config/jwt.config';
 import { LoginDto } from './dtos/login.dto';
 import { RefreshTokenDto } from './dtos/refresh-token.dto';
 import { HashingService } from './hashing/hashing.service';
+import { ResponseDto } from 'src/common/dtos/response.dto';
+
+export type GenerateTokens = {
+    id: number;
+    name: string;
+    email: string;
+    roles: string[];
+    accessToken: string;
+    refreshToken: string;
+}
 
 @Injectable()
 export class AuthService {
@@ -19,13 +29,13 @@ export class AuthService {
     private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
     private readonly jwtService: JwtService,
   ) {}
-  async login(loginDto: LoginDto) {
+  async login(loginDto: LoginDto):Promise<GenerateTokens> {
     const user = await this.userRepository.findOneBy({
       email: loginDto.email,
       active: true,
     });
     if (!user) {
-      throw new UnauthorizedException('Usuário não autorizado.');
+      throw new UnauthorizedException('Usuário não autorizado');
     }
     const passwordIsValid = await this.hashingService.compare(
       loginDto.password,
@@ -43,6 +53,8 @@ export class AuthService {
       this.jwtConfiguration.expiresIn,
       {
         name: user.name,
+        email: user.email,
+        roles: user.roles,
       },
     );
     const refreshTokenPromise = this.signJwtAsync(
@@ -61,7 +73,7 @@ export class AuthService {
       email: user.email,
       roles: user.roles,
       accessToken,
-      refreshToken,
+      refreshToken
     };
   }
 
@@ -80,7 +92,7 @@ export class AuthService {
     );
   }
 
-  async refreshTokens(refreshTokenDto: RefreshTokenDto) {
+  async refreshTokens(refreshTokenDto: RefreshTokenDto):Promise<GenerateTokens>{
     try {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const { sub } = await this.jwtService.verifyAsync(
@@ -93,11 +105,11 @@ export class AuthService {
       });
 
       if (!user) {
-        throw new Error('Usuário não autorizado.');
+        throw new Error('Usuário não autorizado');
       }
       return this.generateTokens(user);
     } catch {
-      throw new UnauthorizedException('Refresh token inválido ou expirado.');
+      throw new UnauthorizedException('Refresh token Iválido ou expirado');
     }
   }
 }

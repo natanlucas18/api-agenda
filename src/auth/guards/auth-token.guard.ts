@@ -2,6 +2,7 @@ import {
   CanActivate,
   ExecutionContext,
   Inject,
+  Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
 import type { ConfigType } from '@nestjs/config';
@@ -16,10 +17,15 @@ import jwtConfig from '../config/jwt.config';
 export type JwtPayload = {
   sub: string;
   name: string;
+  email: string;
+  roles: string[];
   iat: number;
   exp: number;
+  aud: string;
+  iss: string;
 };
 
+@Injectable()
 export class AuthTokenGuard implements CanActivate {
   constructor(
     private readonly jwtService: JwtService,
@@ -41,19 +47,18 @@ export class AuthTokenGuard implements CanActivate {
         audience: this.jwtConfiguration.audience,
         issuer: this.jwtConfiguration.issuer,
       });
-
       const user = await this.pessoaRepository.findOneBy({
         id: Number(payload.sub),
         active: true,
       });
       if (!user) {
-        throw new UnauthorizedException('Pessoa não autorizada!');
+        throw new UnauthorizedException('Usuário não autorizado!');
       }
 
-      payload['user'] = user;
+      request.user = user;
       request[REQUEST_TOKEN_PAYLOAD_KEY] = payload;
     } catch {
-      throw new UnauthorizedException('Falha na validação do token');
+      throw new UnauthorizedException('Validação do token falhou');
     }
     return true;
   }
