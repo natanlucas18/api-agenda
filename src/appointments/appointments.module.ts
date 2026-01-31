@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AvaliableService } from 'src/avaliable-services/entities/avaliable-service.entity';
+import { AvailableService } from 'src/available-services/entities/available-service.entity';
 import { Provider } from 'src/providers/entities/provider.entity';
 import { UsersModule } from 'src/users/users.module';
 import { AppointmentsController } from './appointments.controller';
@@ -9,7 +9,7 @@ import { Appointment } from './entities/appointment.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Appointment, Provider, AvaliableService]),
+    TypeOrmModule.forFeature([Appointment, Provider, AvailableService]),
     UsersModule,
   ],
   controllers: [AppointmentsController],

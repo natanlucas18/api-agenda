@@ -6,10 +6,10 @@ import { Provider } from 'src/providers/entities/provider.entity';
 import { Appointment } from 'src/appointments/entities/appointment.entity';
 import { BlockedSlot } from './entities/blocked-slot.entity';
 import { User } from 'src/users/entities/user.entity';
-import { AvaliableService } from 'src/avaliable-services/entities/avaliable-service.entity';
+import { AvailableService } from 'src/available-services/entities/available-service.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Provider, Appointment, BlockedSlot, User, AvaliableService])],
+  imports: [TypeOrmModule.forFeature([Provider, Appointment, BlockedSlot, User, AvailableService])],
   controllers: [ScheduleController],
   providers: [ScheduleService],
   exports: [ScheduleService]

@@ -31,7 +31,6 @@ export class ProvidersController {
   @ApiResponse({status: 201, description: 'Profissional criado com sucesso'})
   @ApiResponse({status: 409, description: 'O profissional já existe'})
   create(@Body() createProviderDto: CreateProviderDto) {
-    console.log(createProviderDto);
     return this.providersService.create(createProviderDto);
   }
 

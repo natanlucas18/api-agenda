@@ -1,12 +1,12 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Appointment } from "src/appointments/entities/appointment.entity";
-import { AvaliableService } from "src/avaliable-services/entities/avaliable-service.entity";
 import { Provider } from "src/providers/entities/provider.entity";
 import { Between, Repository } from "typeorm";
 import { BlockedSlot } from "./entities/blocked-slot.entity";
 import { ScheduleDomain } from "./schedule.domain";
 import { ResponseDto } from "src/common/dtos/response.dto";
+import { AvailableService } from "src/available-services/entities/available-service.entity";
 
 @Injectable()
 export class ScheduleService {
@@ -14,8 +14,8 @@ export class ScheduleService {
     @InjectRepository(Provider)
     private providerRepo: Repository<Provider>,
 
-    @InjectRepository(AvaliableService)
-    private serviceRepo: Repository<AvaliableService>,
+    @InjectRepository(AvailableService)
+    private serviceRepo: Repository<AvailableService>,
 
     @InjectRepository(Appointment)
     private appointmentRepo: Repository<Appointment>,

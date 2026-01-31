@@ -24,7 +24,7 @@ export class ProvidersService {
       name: createProviderDto.name,
     });
     if (isExists) {
-      throw new ConflictException('Provider all exists.');
+      throw new ConflictException('Esse profissional já existe');
     }
     const provider = this.providerRepository.create({
       name: createProviderDto.name,
@@ -101,7 +101,7 @@ export class ProvidersService {
       if(error.code === '23505') {
         throw new ConflictException('Nome inválido! já existe um profissional com esse nome')
       }
-      throw new error(error)
+      throw error;
     }
   }
 
@@ -112,7 +112,7 @@ export class ProvidersService {
     if (!provider) {
       throw new NotFoundException('Profissional não encontrado');
     }
-      await this.providerRepository.delete(provider);
+      await this.providerRepository.remove(provider);
       return {
         success: true,
         data:provider

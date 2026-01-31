@@ -2,10 +2,10 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppointmentsModule } from './appointments/appointments.module';
 import { AuthModule } from './auth/auth.module';
-import { AvaliableServicesModule } from './avaliable-services/avaliable-services.module';
 import { ProvidersModule } from './providers/providers.module';
 import { UsersModule } from './users/users.module';
 import { ScheduleModule } from './schedule/schedule.module';
+import { AvailableServicesModule } from './available-services/available-services.module';
 
 @Module({
   imports: [
@@ -21,7 +21,7 @@ import { ScheduleModule } from './schedule/schedule.module';
     }),
     AuthModule,
     UsersModule,
-    AvaliableServicesModule,
+    AvailableServicesModule,
     ProvidersModule,
     AppointmentsModule,
     ScheduleModule,
