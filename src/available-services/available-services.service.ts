@@ -95,16 +95,16 @@ export class AvailableServicesService {
       throw new NotFoundException('Serviço não encontrado');
     }
     try {
-      await this.availableServiceRepo.save(service);
+      const savedService = await this.availableServiceRepo.save(service);
       return {
         success: true,
-        data: service
+        data: savedService
       }
     } catch(error) {
       if(error.code === '23505') {
         throw new ConflictException('Já existe um serviço com esse nome')
       }
-      throw new Error(error)
+      throw error;
     }
   }
 

@@ -1,14 +1,20 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { ConflictException, NotFoundException } from '@nestjs/common';
 import { AvailableServicesService } from './available-services.service';
 import { AvailableService } from './entities/available-service.entity';
-import { CreateAvailableServiceDto } from './dto/create-available-service.dto';
 
 describe('AvailableServicesService', () => {
   let service: AvailableServicesService;
-  let serviceRepository: Repository<AvailableService>
+  let serviceRepo: jest.Mocked<Repository<AvailableService>>
+
+  const mockService:AvailableService = {
+    id: 'uuid-1',
+    name: 'Corte americano',
+    price: 45,
+    duration: 30,
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -21,12 +27,17 @@ describe('AvailableServicesService', () => {
           preload: jest.fn(),
           save: jest.fn(),
           remove: jest.fn(),
+          createQueryBuilder: jest.fn()
         }
       }],
     }).compile();
 
     service = module.get<AvailableServicesService>(AvailableServicesService)
-    serviceRepository = module.get<Repository<AvailableService>>(getRepositoryToken(AvailableService))
+    serviceRepo = module.get(getRepositoryToken(AvailableService));
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   it('should be defined', () => {
@@ -34,96 +45,137 @@ describe('AvailableServicesService', () => {
   });
 
   describe('create', () => {
-    it('should create a new service', async() => {
+    it('must successfully create a new service', async () => {
       // Arrange
-      const createServiceDto: CreateAvailableServiceDto = {
-        name: 'corte degrade moicano',
-        price: 35,
-        duration: 30
-      };
-      const newService = {
-        id: 'uuid',
-        name: 'corte degrade moicano',
-        price: 30,
-        duration: 25
-      }
-
-      jest.spyOn(serviceRepository, 'create').mockReturnValue(newService);
-      jest.spyOn(serviceRepository, 'save').mockResolvedValue(newService)
+        serviceRepo.findOneBy.mockResolvedValue(null);
+        serviceRepo.create.mockReturnValue(mockService);
+        serviceRepo.save.mockResolvedValue(mockService);      
 
       // Act
-      const result = await service.create(createServiceDto);
+      const result = await service.create({
+        name: 'Corte americano',
+        price: 45,
+        duration: 30
+      });
 
       // Assert
-      expect(serviceRepository.create).toHaveBeenCalledWith({
-        name: createServiceDto.name,
-        price: createServiceDto.price,
-        duration: createServiceDto.duration
+      expect(serviceRepo.findOneBy).toHaveBeenCalledWith({
+        name: 'Corte americano'
       })
-      expect(serviceRepository.save).toHaveBeenCalledWith(newService);
-      expect(result).toEqual(newService);
-    }) 
-  })
+      expect(serviceRepo.create).toHaveBeenCalled()
+      expect(serviceRepo.save).toHaveBeenCalledWith(mockService);
+      expect(result.success).toBe(true);
+      expect(result.data).toEqual(mockService);
+    });
+
+    it('should throw a ConflictException if the service already exists', async () => {
+      serviceRepo.findOneBy.mockResolvedValue(mockService)
+
+      await expect(service.create({
+        name: 'Corte americano',
+        price: 45,
+        duration: 30
+      })).rejects.toThrow(ConflictException);
+    });
+  });
+
+  describe('findAll', () => {
+    it('should return a paginated list', async () => {
+      const qb:any = {
+        andWhere: jest.fn().mockReturnThis(),
+        orderBy: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        take: jest.fn().mockReturnThis(),
+        getManyAndCount: jest.fn().mockResolvedValue([[mockService], 1])
+      }
+
+      serviceRepo.createQueryBuilder.mockReturnValue(qb);
+
+      const result = await service.findAll({
+        page: 1,
+        limit: 10,
+        sortBy: 'name',
+        sortOrder: 'ASC',
+      });
+
+      expect(result.data).toHaveLength(1)
+      expect(result.meta.totalItems).toBe(1)
+      expect(result.meta.totalPages).toBe(1)
+  });
+})
 
   describe('findOne', () => {
-    it('must return a service if the service is found', async () => {
-    const serviceId = 'UUID example';
-    const responseData = {
-      id: serviceId,
-      name: 'Barba',
-      price: 35,
-      duration: 30
-    }
+    it('should return a service by ID', async () => {
+      serviceRepo.findOneBy.mockResolvedValue(mockService);
 
-    jest.spyOn(serviceRepository, 'findOneBy').mockResolvedValue(responseData as any);
+      const result = await service.findOne('uuid-1');
 
-    const result = await service.findOne(serviceId);
+      expect(result.success).toBe(true);
+      expect(result.data).toEqual(mockService);
+    });
 
-    expect(result).toEqual(responseData)
+    it('should throw a NotFoundException if not exist', async () => {
+      serviceRepo.findOneBy.mockResolvedValue(null);
+
+      await expect(service.findOne('uuid-1')).rejects.toThrow(
+        NotFoundException
+      )
+    });
   });
 
-  it('should throw a NotFoundException if the service does not exist.', async () => {
-      expect(service.findOne('hca')).rejects.toThrow(NotFoundException);
-  });
+  describe('update', () => {
+    it('must update a service successfully', async () => {
+      serviceRepo.preload.mockResolvedValue(mockService);
+      serviceRepo.save.mockResolvedValue(mockService);
+
+      const result = await service.update('uuid-1', {
+        name: 'Corte degradê',
+      });
+
+      expect(serviceRepo.preload).toHaveBeenCalled()
+      expect(serviceRepo.save).toHaveBeenCalled()
+      expect(result.success).toBe(true);
+    });
+
+    it('should throw a NotFoundException if it cannot find', async () => {
+      serviceRepo.preload.mockResolvedValue(null);
+
+      await expect(service.update('uuid-1', {
+        name: 'Corte social'
+      })).rejects.toThrow(
+        NotFoundException
+      )
+    });
+
+    it('should throw a ConfictException for an error in the unique key', async () => {
+      serviceRepo.preload.mockResolvedValue(mockService);
+      serviceRepo.save.mockRejectedValue({code: '23505'});
+
+      await expect(service.update('uuid-1', {
+        name: 'Nome duplicado'
+      })).rejects.toThrow(
+        ConflictException
+      )
+    });
   });
 
   describe('remove', () => {
-    it('should remove a service', async () => {
-      const id = 'HcA26JKL';
-      const serviceExisting = {
-        id: id,
-        name: 'Corte Degradê',
-        price: 45,
-        duration: 35
-      };
+    it('must successfully remove a service', async () => {
+      serviceRepo.findOneBy.mockResolvedValue(mockService);
+      serviceRepo.remove.mockResolvedValue(mockService);
 
-      jest.spyOn(serviceRepository, 'findOneBy').mockResolvedValue(serviceExisting as any);
-      jest.spyOn(serviceRepository, 'remove').mockResolvedValue(serviceExisting as any);
+      const result = await service.remove('uuid-1');
 
-      const result = await service.remove(id);
-
-      expect(serviceRepository.findOneBy).toHaveBeenCalledWith({id: serviceExisting.id});
-      expect(serviceRepository.remove).toHaveBeenCalledWith(serviceExisting);
-      expect(result).toEqual(serviceExisting);
+      expect(serviceRepo.remove).toHaveBeenCalledWith(mockService);
+      expect(result.success).toBe(true);
     });
 
     it('should throw a NotFoundException if the service does not found', async () => {
-      jest.spyOn(serviceRepository, 'findOneBy').mockResolvedValue(null);
-      await expect(service.remove('invalid')).rejects.toThrow(NotFoundException);
+      serviceRepo.findOneBy.mockResolvedValue(null)
+
+      await expect(service.remove('uuid-1')).rejects.toThrow(
+        NotFoundException);
     });
+  });
 
-    it('should throw a BadRequestException when delete fails.', async () => {
-      const serviceExisting = {
-        id: 'uuid',
-        name: 'Corte Social',
-        price: 30,
-        duration: 25
-      };
-
-      jest.spyOn(serviceRepository, 'findOneBy').mockResolvedValue(serviceExisting as any);
-      jest.spyOn(serviceRepository, 'remove').mockRejectedValue(new Error())
-
-      await expect(service.remove(serviceExisting.id)).rejects.toThrow(BadRequestException)
-    })
-  })
 });
